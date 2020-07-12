@@ -19,20 +19,20 @@ app.post("/repositories", (request, response) => {
   const repository = { id: uuid(), title, url, techs, likes: 0 };
   repositories.push(repository);
 
-  return response.send('Repositorio criado com sucesso!');
+  return response.json(repository);
 });
 
 app.put("/repositories/:id", (request, response) => {
   const { id } = request.params;
-  const { title, url, techs, likes } = request.body;
+  const { title, url, techs } = request.body;
 
   const repositoryIndex = repositories.findIndex(repository => repository.id == id);
   if (repositoryIndex < 0){
     return response.status(400).send('Repositorio nao encontrado!');
   }
-  const repository = { id, title, url, techs, likes: likes};
+  const repository = { id, title, url, techs, likes: repositories[repositoryIndex].likes};
   repositories[repositoryIndex] = repository;
-  return response.send('Repositorio alterado!');
+  return response.json(repository);
 
 
   
@@ -41,12 +41,15 @@ app.put("/repositories/:id", (request, response) => {
 
 app.delete("/repositories/:id", (request, response) => {
   const { id } = request.params;
-  const repositoryIndex = repositories.find(repository => repository.id == id);
+  const repositoryIndex = repositories.findIndex(repository => 
+    repository.id == id);
   if (repositoryIndex < 0){
     return response.status(400).send('Repositorio nao encontrado!');
   }
-  repositories.splice(repositoryIndex);
-  return response.send('Repositorio deletado!');
+  else{  
+    repositories.splice(repositoryIndex);
+  }
+  return response.status(204).send();
   
 
 });
@@ -56,8 +59,8 @@ app.post("/repositories/:id/like", (request, response) => {
   const repositoryIndex = repositories.findIndex(repository => repository.id == id);
   if(repositoryIndex < 0)
     return response.status(400).send('Repositorio nao encontrado!');
-  repositories.likes[repositoryIndex] = repositories.likes[repositoryIndex] +1;
-  return response.send('likezinho brabo');
+  repositories[repositoryIndex].likes ++;
+  return response.json(repositories[repositoryIndex]);
 
 });
 
